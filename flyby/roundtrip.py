@@ -148,6 +148,8 @@ def finder(grid, max_level=10, max_threads=1, least_trips=None):
     global MAX_LEVEL
     MAX_LEVEL = max_level
 
+    least_trips = 0 if least_trips is None else least_trips
+
     log("executing finder ({} threads)".format(max_threads))
     timer_in = datetime.now()
 
@@ -159,7 +161,7 @@ def finder(grid, max_level=10, max_threads=1, least_trips=None):
     if max_threads == 1:
         for port in grid.data:
             hiker(source_port=port, trip=blank_trip.copy(), roundtrips=roundtrips)
-            if least_trips is not None:
+            if least_trips > 0:
                 if len(roundtrips) >= least_trips:
                     break
     else:
@@ -178,7 +180,7 @@ def finder(grid, max_level=10, max_threads=1, least_trips=None):
             t.start()
             pool.append(t)
 
-            if least_trips is not None:
+            if least_trips > 0:
                 if len(roundtrips) >= least_trips:
                     break
 
