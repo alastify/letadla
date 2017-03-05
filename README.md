@@ -14,7 +14,7 @@ Python3 a modul GeoBases3K
 
 ### Parametry
   * ``-i`` vstupní soubor (jinak se použije výchozí v adresáři projektu)
-  * ``-t`` nejmenší počet hledaných cest (výchozí hodnota =  100)
+  * ``-t`` nejmenší počet hledaných cest (výchozí hodnota =  100), je-li t = 0, pak hledá všechny
   * ``-l`` počet navštívených letišť v rámci cesty (včetně výchozího a cílového) (výchozí hodnota = 10)
 
 
