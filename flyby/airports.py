@@ -4,6 +4,7 @@ from csv import reader
 from .output import log
 from .timemachine import parse_time
 import math
+from settings import BASE_PATH
 
 
 class Schedule:
@@ -59,20 +60,16 @@ class Airports:
     Wrapper for data about all the airports and its schedule
 
     """
-
-    def __init__(self, geo_a, total_estimation):
+    def __init__(self, total_estimation):
         """
         Constructor
-
-        :type geo_a: GeoBase
-        :param geo_a: Information about airports
 
         :type total_estimation: integer
         :param total_estimation: Estimation of total airports
         """
+        self.iata = IATA_codes()
         self.data = []
         self.total_estimation = total_estimation
-        self.geo_a = geo_a
 
     def get_port_by_code(self, code, return_default=True):
         """
@@ -91,25 +88,22 @@ class Airports:
                 return port
 
         if return_default:
-            ainfo = "XXX"
-            if self.geo_a is not None:
-                ainfo = self.geo_a.get(code, 'name', default="EMPTY")
+            ainfo = self.iata.get(code)
 
-            if ainfo == "EMPTY":
-                log("  NOTICE airport {} has not been found!".format(code))
+            if ainfo is None:
+                log("  NOTICE: airport {} has not been found!".format(code))
                 return None
             else:
                 port = Port()
                 port.name = ainfo
                 port.code = code
-                if self.geo_a is not None:
-                    port.country = self.geo_a.get(code, 'country_code')
+                port.country = ainfo["country"]
                 self.data.append(port)
                 return port
 
         return None
 
-    def add_from_csv(self, source, destination, departure_at, arrival_at):
+    def add(self, source, destination, departure_at, arrival_at):
         """
         Append airport data from CSV
 
@@ -119,11 +113,11 @@ class Airports:
         :type destination: string
         :param destination: Airport iata code
 
-        :type departure_at: string
-        :param departure_at: Time of departure as a string
+        :type departure_at: datetime
+        :param departure_at: Time of departure
 
-        :type arrival_at: string
-        :param arrival_at: Time of arrival as a string
+        :type arrival_at: datetime
+        :param arrival_at: Time of arrival
         """
         source_port = self.get_port_by_code(source)
         destination_port = self.get_port_by_code(destination)
@@ -131,28 +125,57 @@ class Airports:
         if source_port and destination_port:
             source_port.add_schedule(
                 Schedule(
-                    departure_at=parse_time(departure_at),
-                    arrival_at=parse_time(arrival_at),
+                    departure_at=departure_at,
+                    arrival_at=arrival_at,
                     destination_port=destination_port
                 )
             )
 
 
-def import_csv(filename, geo_a):
+class IATA_codes:
+    """
+    Database of airports IATA codes
+
+    """
+    def __init__(self):
+        log("loading iata codes")
+        self.codes = {}
+        with open(os.path.join(BASE_PATH, "iata.csv"), mode='r') as fp:
+            i = 0
+            csv = reader(fp, delimiter='^')
+            for line in csv:
+                if len(line) == 10:
+                    code = line[6]
+                    country = line[3]
+                    self.codes[code] = country
+                else:
+                    log("Ignoring line: {}, bad format!".format(i))
+                i+= 1
+
+    def get(self, code):
+        if code in self.codes:
+            country = self.codes[code]
+        else:
+            return None
+
+        return {
+            "code": code,
+            "country": country,
+        }
+
+
+def import_csv(filename):
     """
     Import given CSV file
 
     :type filename: string
     :param filename: File name
-
-    :type geo_a: GeoBase
-    :param geo_a: GeoBase object
     """
     if os.path.exists(filename) and os.path.isfile(filename):
         log("enumerating")
         num_lines = sum(1 for line in open(filename))
         log("total: {}".format(num_lines))
-        ap = Airports(geo_a=geo_a, total_estimation=num_lines)
+        ap = Airports(total_estimation=num_lines)
         with open(filename, mode='r') as fp:
             csv = reader(fp, delimiter=';')
             log("parsing")
@@ -167,7 +190,11 @@ def import_csv(filename, geo_a):
                     if percent > step:
                         log("  {}%".format(percent))
                         step+= 5
-                    ap.add_from_csv(source=line[0], destination=line[1], departure_at=line[2], arrival_at=line[3])
+                    ap.add(
+                        source=line[0],
+                        destination=line[1],
+                        departure_at=parse_time(line[2]),
+                        arrival_at=parse_time(line[3]))
                 else:
                     log("Ignoring line: {}, bad format!".format(i))
                 i+= 1

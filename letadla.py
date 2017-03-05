@@ -3,11 +3,10 @@ import os
 from flyby.airports import import_csv
 from flyby.output import csv_export, log, validate
 from flyby.roundtrip import finder
-from GeoBases import GeoBase
+from settings import BASE_PATH
 
 
 def main(argv):
-    BASE_PATH = os.path.dirname(os.path.abspath(__file__))
     INPUT_FILENAME = os.path.join(BASE_PATH, "input-data.csv")
     LEAST_TRIPS = 100
     MAX_LEVEL = 10
@@ -30,10 +29,7 @@ def main(argv):
         elif opt == "-l":
             MAX_LEVEL = int(arg)
 
-    log("geobase init")
-    # TODO: more actual data https://github.com/opentraveldata/opentraveldata/find/master
-    geo_a = GeoBase(data='ori_por', verbose=False)
-    grid = import_csv(filename=INPUT_FILENAME, geo_a=geo_a)
+    grid = import_csv(filename=INPUT_FILENAME)
     paths = finder(grid, least_trips=LEAST_TRIPS, max_level=MAX_LEVEL)
     validate(INPUT_FILENAME, paths)
     csv_export(filename=OUTPUT_FILENAME, paths=paths)
