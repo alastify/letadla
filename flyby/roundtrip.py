@@ -50,13 +50,18 @@ def find_duplicate(trip):
     :type trip: tuple
     :param trip: (port, departure_at, arrival_at)
     """
-    saw = []
+    codes = []
+    countries = []
     for port_tuple in trip:
         if port_tuple is not None:
-            if port_tuple[0].code in saw:
+            if port_tuple[0].code in codes:
                 return True
             else:
-                saw.append(port_tuple[0].code)
+                codes.append(port_tuple[0].code)
+            if port_tuple[0].country in countries:
+                return True
+            else:
+                countries.append(port_tuple[0].country)
 
     return False
 
@@ -105,6 +110,7 @@ def hiker(source_port, trip, roundtrips, level=0, departure_at=None, arrival_at=
     # schedule traverse
     for dst in source_port.schedule:
         if level > 0:
+
             # throw away those, when arrival time is higher than departure time
             if arrival_at > dst.departure_at:
                 continue
