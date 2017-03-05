@@ -1,0 +1,6 @@
+*.pyc
+!output/
+output/*
+!output/readme.md
+input-small.csv
+input.csv
