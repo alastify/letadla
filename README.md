@@ -2,9 +2,7 @@ Vstupní úloha
 =============
 
 ## Prerekvizity
-Python3 a modul GeoBases3K
-
-    $ pip install -r requirements.txt
+  * Python 3.5
 
 
 ## Spuštění
@@ -24,3 +22,7 @@ Výstupní soubor ``output.csv`` se ukládá do adresáře ``./output``.
 
 ## Algoritmus
 V souboru ``./flyby/roundtrip.py`` je funkce ``hiker()``, která implementuje rekurzivní algoritmus pro hledání spojů.
+
+## IATA
+Kódy letišť stažené odtud:
+[https://github.com/opentraveldata/opentraveldata/find/master](https://github.com/opentraveldata/opentraveldata/find/master)
