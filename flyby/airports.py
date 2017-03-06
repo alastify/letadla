@@ -123,13 +123,14 @@ class Airports:
         destination_port = self.get_port_by_code(destination)
 
         if source_port and destination_port:
-            source_port.add_schedule(
-                Schedule(
-                    departure_at=departure_at,
-                    arrival_at=arrival_at,
-                    destination_port=destination_port
+            if source_port.country != destination_port.country:
+                source_port.add_schedule(
+                    Schedule(
+                        departure_at=departure_at,
+                        arrival_at=arrival_at,
+                        destination_port=destination_port
+                    )
                 )
-            )
 
 
 class IATA_codes:
@@ -147,6 +148,8 @@ class IATA_codes:
                 if len(line) == 10:
                     code = line[6]
                     country = line[3]
+                    if code in self.codes and country != self.codes[code]:
+                        log("Notice: Same code for different country")
                     self.codes[code] = country
                 else:
                     log("Ignoring line: {}, bad format!".format(i))

@@ -30,7 +30,7 @@ def main(argv):
             MAX_LEVEL = int(arg)
 
     grid = import_csv(filename=INPUT_FILENAME)
-    paths = finder(grid, least_trips=LEAST_TRIPS, max_level=MAX_LEVEL)
+    paths = finder(grid, least_trips=LEAST_TRIPS, max_level=MAX_LEVEL, max_threads=1)
     validate(INPUT_FILENAME, paths)
     csv_export(filename=OUTPUT_FILENAME, paths=paths)
 
